@@ -1,29 +1,51 @@
 import throttle from 'lodash.throttle';
 
+const STORAGE_KEY = 'feedback-form-state';
 const form = document.querySelector('.feedback-form');
-form.addEventListener('input', throttle(onFormData, 500));
-form.addEventListener('submit', onSubmitForm);
+const emailInput = document.querySelector('[type="email"]');
+const messageInput = document.querySelector('.feedback-form textarea');
 
-const formData = {};
+form.addEventListener('submit', onFormSubmit);
+form.addEventListener('input', throttle(onDateInput, 500));
 
-function onFormData(e) {
-  formData[e.target.name] = e.target.value;
-  localStorage.setItem('feedback-form-state', JSON.stringify(formData));
+const dataInput = {
+  email: '',
+  message: '',
+};
+
+populateData();
+
+function onFormSubmit(evt) {
+  evt.preventDefault();
+
+  console.log(dataInput);
+  // console.log({email: emailInput.value, message: messageInput.value})
+  // console.log(evt.currentTarget.elements);
+
+  evt.currentTarget.reset();
+
+  localStorage.removeItem(STORAGE_KEY);
 }
 
-function onSubmitForm(e) {
-  console.log(JSON.parse(localStorage.getItem('feedback-form-state')));
-  e.preventDefault();
-  e.currentTarget.reset();
-  localStorage.removeItem('feedback-form-state');
+function onDateInput(evt) {
+  dataInput[evt.target.name] = evt.target.value;
+  // console.log(dataInput);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(dataInput));
 }
 
-(function dataFromLocalStorage() {
-  const data = JSON.parse(localStorage.getItem('feedback-form-state'));
-  const email = document.querySelector('.feedback-form input');
-  const message = document.querySelector('.feedback-form textarea');
-  if (data) {
-    email.value = data.email;
-    message.value = data.message;
+function populateData() {
+  const savedData = localStorage.getItem(STORAGE_KEY);
+  // console.log(savedData);
+
+  if (savedData) {
+    const parsedData = JSON.parse(savedData);
+
+    emailInput.value = parsedData.email;
+    messageInput.value = parsedData.message;
+
+    dataInput.email = parsedData.email;
+    dataInput.message = parsedData.message;
+    // console.log(dataInput)
   }
-})();
+}
