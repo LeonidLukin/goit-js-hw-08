@@ -27,4 +27,3 @@ function onSubmitForm(e) {
     message.value = data.message;
   }
 })();
-console.log('hi');
